@@ -532,7 +532,8 @@ def export_data():
     })
 
 
+init_db()
+init_sample_data()
+
 if __name__ == '__main__' or getattr(sys, 'frozen', False):
-    init_db()
-    init_sample_data()
     app.run(host='0.0.0.0', port=5000, debug=False)
