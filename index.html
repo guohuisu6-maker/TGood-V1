@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智T盈 - 智能做T盈利助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        :root {
+            --primary-color: #0070C0;
+            --primary-light: #D9E1F2;
+            --primary-dark: #003366;
+            --success-color: #00B050;
+            --danger-color: #C00000;
+            --bg-color: #F8F9FA;
+            --card-bg: #FFFFFF;
+            --text-primary: #212529;
+            --text-secondary: #6C757D;
+            --border-color: #DEE2E6;
+            --zebra-bg: #EBF1F8;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        /* 头部样式 */
+        .header {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header .nav-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #005A9E;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+
+        .btn-danger {
+            background-color: #C00000;
+            color: white;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background-color: #990000;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        /* 主容器 */
+        .main-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        /* 卡片通用样式 */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary-dark);
+        }
+
+        /* 股票列表样式 */
+        .stock-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .stock-item {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stock-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 112, 192, 0.15);
+        }
+
+        .stock-item.active {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+        }
+
+        .stock-info .stock-name {
+            font-size: 16px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .stock-info .stock-code {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .stock-price {
+            text-align: right;
+        }
+
+        .stock-price .price {
+            font-size: 18px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .stock-price .change {
+            font-size: 14px;
+            border-radius: 3px;
+            padding: 2px 6px;
+            display: inline-block;
+        }
+
+        .change.up {
+            background-color: rgba(192, 0, 0, 0.1);
+            color: var(--danger-color);
+        }
+
+        .change.down {
+            background-color: rgba(0, 176, 80, 0.1);
+            color: var(--success-color);
+        }
+
+        /* 表格样式 */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--zebra-bg);
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(0, 112, 192, 0.05);
+        }
+
+        .data-table tfoot {
+            background-color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .data-table .success {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .data-table .danger {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        /* 盈亏看板样式 */
+        .profit-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .board-item {
+            background-color: var(--bg-color);
+            border-radius: 6px;
+            padding: 16px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .board-item.success {
+            border-left-color: var(--success-color);
+        }
+
+        .board-item.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .board-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .board-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .board-item.success .board-value {
+            color: var(--success-color);
+        }
+
+        .board-item.danger .board-value {
+            color: var(--danger-color);
+        }
+
+        /* 底部状态栏 */
+        .footer {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 10% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--danger-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background-color: var(--bg-color);
+            cursor: not-allowed;
+        }
+
+        .form-group .hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .form-group .error {
+            font-size: 12px;
+            color: var(--danger-color);
+            margin-top: 4px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .header .nav-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .stock-list {
+                grid-template-columns: 1fr;
+            }
+
+            .profit-board {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .data-table {
+                font-size: 12px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px 4px;
+            }
+        }
+
+        /* 确认对话框 */
+        .confirm-modal .modal-content {
+            max-width: 400px;
+        }
+
+        .confirm-modal .modal-body {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .confirm-modal .modal-body p {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .confirm-modal .modal-body .warning {
+            color: var(--danger-color);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <div class="header">
+        <h1>智T盈 - 智能做T盈利助手</h1>
+        <div class="nav-buttons">
+            <button class="btn btn-outline" id="addStockBtn">+ 添加股票</button>
+            <button class="btn btn-outline" id="refreshBtn">刷新行情</button>
+            <button class="btn btn-outline" id="exportBtn">导出数据</button>
+            <button class="btn btn-primary" id="addTradeBtn" disabled>新增做T</button>
+            <button class="btn btn-outline" id="logoutBtn" onclick="handleLogout()">退出登录</button>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 总览看板 -->
+        <div class="card">
+            <h2>持仓总览</h2>
+            <div class="profit-board" id="overviewBoard">
+                <div class="board-item">
+                    <span class="board-label">总成本</span>
+                    <span class="board-value" id="overviewTotalCost">-</span>
+                </div>
+                <div class="board-item">
+                    <span class="board-label">总市值</span>
+                    <span class="board-value" id="overviewTotalValue">-</span>
+                </div>
+                <div class="board-item" id="overviewProfitItem">
+                    <span class="board-label">总盈亏</span>
+                    <span class="board-value" id="overviewTotalProfit">-</span>
+                </div>
+                <div class="board-item" id="overviewProfitRateItem">
+                    <span class="board-label">盈亏率</span>
+                    <span class="board-value" id="overviewProfitRate">-</span>
+                </div>
+                <div class="board-item" id="overviewCostAfterTItem">
+                    <span class="board-label">做T后成本</span>
+                    <span class="board-value" id="overviewCostAfterT">-</span>
+                </div>
+                <div class="board-item" id="overviewProfitAfterTItem">
+                    <span class="board-label">做T后盈亏</span>
+                    <span class="board-value" id="overviewProfitAfterT">-</span>
+                </div>
+                <div class="board-item" id="overviewProfitRateAfterTItem">
+                    <span class="board-label">做T后盈亏率</span>
+                    <span class="board-value" id="overviewProfitRateAfterT">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 股票列表 -->
+        <div class="card">
+            <h2>我的持仓股票</h2>
+            <div class="stock-list" id="stockList">
+                <div class="empty-state">
+                    <p>暂无股票，请点击"添加股票"开始使用</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 做T记录表格 -->
+        <div class="card">
+            <h2>做T交易记录 - <span id="currentStockName">请选择股票</span></h2>
+            <div class="table-wrapper" id="tradeTableWrapper" style="display: none;">
+                <table class="data-table" id="tradeTable">
+                    <thead>
+                        <tr>
+                            <th>轮次</th>
+                            <th>买入单价</th>
+                            <th>买入股数</th>
+                            <th>买入总价</th>
+                            <th>卖出单价</th>
+                            <th>卖出股数</th>
+                            <th>卖出总价</th>
+                            <th>盈利</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradeTableBody">
+                    </tbody>
+                    <tfoot id="tradeTableFoot">
+                    </tfoot>
+                </table>
+            </div>
+            <div class="empty-state" id="tradeEmptyState">
+                <p>请先选择一只股票查看交易记录</p>
+            </div>
+        </div>
+
+        <!-- 盈亏看板 -->
+        <div class="card">
+            <h2>盈亏核心看板 - <span id="boardStockName">请选择股票</span></h2>
+            <div class="profit-board" id="profitBoard">
+                <div class="board-item">
+                    <div class="board-label">总成本</div>
+                    <div class="board-value" id="totalCost">¥0.00</div>
+                </div>
+                <div class="board-item">
+                    <div class="board-label">现市值</div>
+                    <div class="board-value" id="currentValue">¥0.00</div>
+                </div>
+                <div class="board-item" id="profitBoardItem">
+                    <div class="board-label">总盈亏</div>
+                    <div class="board-value" id="totalProfit">¥0.00</div>
+                </div>
+                <div class="board-item">
+                    <div class="board-label">平均成本</div>
+                    <div class="board-value" id="avgCost">¥0.00</div>
+                </div>
+                <div class="board-item">
+                    <div class="board-label">持仓股数</div>
+                    <div class="board-value" id="holdShares">0</div>
+                </div>
+                <div class="board-item" id="profitRateBoardItem">
+                    <div class="board-label">盈亏率</div>
+                    <div class="board-value" id="profitRate">0.00%</div>
+                </div>
+                <div class="board-item" id="costAfterTBoardItem">
+                    <div class="board-label">做T后成本</div>
+                    <div class="board-value" id="costAfterT">¥0.00</div>
+                </div>
+                <div class="board-item" id="profitAfterTBoardItem">
+                    <div class="board-label">做T后盈亏</div>
+                    <div class="board-value" id="profitAfterT">¥0.00</div>
+                </div>
+                <div class="board-item" id="profitRateAfterTBoardItem">
+                    <div class="board-label">做T后盈亏率</div>
+                    <div class="board-value" id="profitRateAfterT">0.00%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部状态栏 -->
+    <div class="footer">
+        <div class="status" id="statusText">就绪</div>
+        <div class="update-time" id="updateTime">最后更新：-</div>
+    </div>
+
+    <!-- 添加股票模态框 -->
+    <div class="modal" id="addStockModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加股票</h3>
+                <button class="modal-close" onclick="closeModal('addStockModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>股票代码</label>
+                    <div class="form-row">
+                        <input type="text" id="stockCode" placeholder="请输入6位股票代码" maxlength="6">
+                        <button class="btn btn-primary btn-sm" id="queryStockBtn" onclick="queryStockInfo()">查询</button>
+                    </div>
+                    <div class="hint" id="stockQueryHint">输入股票代码后自动查询股票信息</div>
+                </div>
+                <div class="form-group">
+                    <label>股票名称</label>
+                    <input type="text" id="stockName" placeholder="请输入股票名称" disabled>
+                </div>
+                <div class="form-group">
+                    <label>市场</label>
+                    <select id="stockMarket" disabled>
+                        <option value="SZ">深圳证券交易所 (SZ)</option>
+                        <option value="SH">上海证券交易所 (SH)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('addStockModal')">取消</button>
+                <button class="btn btn-primary" id="confirmAddStockBtn" onclick="confirmAddStock()" disabled>确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加交易模态框 -->
+    <div class="modal" id="addTradeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新增做T记录 - <span id="addTradeStockName"></span></h3>
+                <button class="modal-close" onclick="closeModal('addTradeModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>交易类型</label>
+                    <select id="tradeType">
+                        <option value="base">底仓</option>
+                        <option value="buy">买入</option>
+                        <option value="sell">卖出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>交易价格</label>
+                    <input type="number" id="tradePrice" placeholder="请输入交易价格" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label>交易股数</label>
+                    <input type="number" id="tradeShares" placeholder="请输入交易股数" min="1">
+                </div>
+                <div class="form-group">
+                    <label>轮次</label>
+                    <input type="number" id="tradeRound" placeholder="请输入轮次编号" min="0">
+                    <div class="hint">0表示底仓，后续轮次自动递增</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('addTradeModal')">取消</button>
+                <button class="btn btn-primary" onclick="confirmAddTrade()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认删除模态框 -->
+    <div class="modal confirm-modal" id="confirmDeleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认删除</h3>
+                <button class="modal-close" onclick="closeModal('confirmDeleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteMessage">确定要删除吗？</p>
+                <p class="warning">此操作不可恢复！</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('confirmDeleteModal')">取消</button>
+                <button class="btn btn-primary" id="confirmDeleteBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentStockId = null;
+        let stocks = [];
+        let currentSummary = null;
+        let deleteCallback = null;
+
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('/api/check_login');
+                const data = await response.json();
+                if (!data.logged_in) {
+                    window.location.href = '/login';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                window.location.href = '/login';
+                return false;
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('登出失败:', error);
+            }
+        }
+
+        // 格式化金额
+        function formatMoney(num) {
+            if (num === null || num === undefined || isNaN(num)) return '0.00';
+            return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // 格式化涨跌
+        function formatChange(num) {
+            if (num === null || num === undefined || isNaN(num)) return '0.00%';
+            const prefix = num >= 0 ? '+' : '';
+            return prefix + num.toFixed(2) + '%';
+        }
+
+        // 格式化数量
+        function formatShares(num) {
+            if (num === null || num === undefined || isNaN(num)) return '0';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // 设置状态
+        function setStatus(text) {
+            document.getElementById('statusText').textContent = text;
+        }
+
+        // 更新最后更新时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('updateTime').textContent = '最后更新：' + timeStr;
+        }
+
+        // 加载总览数据
+        async function loadOverview() {
+            try {
+                const response = await fetch('/api/overview');
+                const data = await response.json();
+                renderOverview(data);
+            } catch (error) {
+                console.error('加载总览数据失败:', error);
+            }
+        }
+
+        // 渲染总览数据
+        function renderOverview(data) {
+            const totalCost = data.total_cost || 0;
+            const totalValue = data.total_current_value || 0;
+            const totalProfit = data.total_profit || 0;
+            const profitRate = data.total_profit_rate || 0;
+            
+            const costAfterT = data.total_cost_after_t || 0;
+            const profitAfterT = data.total_profit_after_t || 0;
+            const profitRateAfterT = data.total_profit_rate_after_t || 0;
+
+            document.getElementById('overviewTotalCost').textContent = '¥' + formatMoney(totalCost);
+            document.getElementById('overviewTotalValue').textContent = '¥' + formatMoney(totalValue);
+            document.getElementById('overviewTotalProfit').textContent = (totalProfit >= 0 ? '+' : '') + '¥' + formatMoney(totalProfit);
+            document.getElementById('overviewProfitRate').textContent = (profitRate >= 0 ? '+' : '') + profitRate.toFixed(2) + '%';
+            
+            document.getElementById('overviewCostAfterT').textContent = '¥' + formatMoney(costAfterT);
+            document.getElementById('overviewProfitAfterT').textContent = (profitAfterT >= 0 ? '+' : '') + '¥' + formatMoney(profitAfterT);
+            document.getElementById('overviewProfitRateAfterT').textContent = (profitRateAfterT >= 0 ? '+' : '') + profitRateAfterT.toFixed(2) + '%';
+
+            const profitClass = totalProfit >= 0 ? 'success' : 'danger';
+            document.getElementById('overviewProfitItem').className = 'board-item ' + profitClass;
+            document.getElementById('overviewProfitRateItem').className = 'board-item ' + profitClass;
+            
+            const profitAfterTClass = profitAfterT >= 0 ? 'success' : 'danger';
+            document.getElementById('overviewCostAfterTItem').className = 'board-item ' + profitAfterTClass;
+            document.getElementById('overviewProfitAfterTItem').className = 'board-item ' + profitAfterTClass;
+            document.getElementById('overviewProfitRateAfterTItem').className = 'board-item ' + profitAfterTClass;
+        }
+
+        // 加载股票列表
+        async function loadStocks() {
+            try {
+                setStatus('正在加载股票列表...');
+                const response = await fetch('/api/stocks');
+                stocks = await response.json();
+                renderStockList();
+                await loadOverview();
+                setStatus('加载完成');
+                updateTime();
+            } catch (error) {
+                console.error('加载股票列表失败:', error);
+                setStatus('加载失败');
+            }
+        }
+
+        // 渲染股票列表
+        function renderStockList() {
+            const stockList = document.getElementById('stockList');
+            
+            if (stocks.length === 0) {
+                stockList.innerHTML = `
+                    <div class="empty-state">
+                        <p>暂无股票，请点击"添加股票"开始使用</p>
+                    </div>
+                `;
+                return;
+            }
+
+            stockList.innerHTML = stocks.map(stock => {
+                const isActive = stock.id === currentStockId;
+                const changeClass = stock.change >= 0 ? 'up' : 'down';
+                const codeDisplay = `${stock.code}.${stock.market}`;
+                
+                return `
+                    <div class="stock-item ${isActive ? 'active' : ''}" 
+                         data-stock-id="${stock.id}"
+                         onclick="selectStock(${stock.id})"
+                         oncontextmenu="showStockContextMenu(event, ${stock.id}, '${stock.name}')">
+                        <div class="stock-info">
+                            <span class="stock-name">${stock.name}</span>
+                            <span class="stock-code">${codeDisplay}</span>
+                        </div>
+                        <div class="stock-price">
+                            <span class="price">${stock.price > 0 ? '¥' + stock.price.toFixed(2) : '-'}</span>
+                            <span class="change ${changeClass}">${stock.price > 0 ? formatChange(stock.change) : '-'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 选择股票
+        async function selectStock(stockId) {
+            currentStockId = stockId;
+            renderStockList();
+            
+            const stock = stocks.find(s => s.id === stockId);
+            if (stock) {
+                document.getElementById('currentStockName').textContent = stock.name;
+                document.getElementById('boardStockName').textContent = stock.name;
+                document.getElementById('addTradeStockName').textContent = stock.name;
+                document.getElementById('addTradeBtn').disabled = false;
+                
+                await loadStockDetail(stockId);
+            }
+        }
+
+        // 加载股票详情
+        async function loadStockDetail(stockId) {
+            try {
+                setStatus('正在加载交易记录...');
+                const response = await fetch(`/api/stocks/${stockId}/summary`);
+                const data = await response.json();
+                
+                currentSummary = data;
+                renderTradeTable(data.transactions);
+                renderProfitBoard(data.summary);
+                await loadOverview();
+                setStatus('加载完成');
+                updateTime();
+            } catch (error) {
+                console.error('加载交易记录失败:', error);
+                setStatus('加载失败');
+            }
+        }
+
+        // 渲染交易表格
+        function renderTradeTable(transactions) {
+            const wrapper = document.getElementById('tradeTableWrapper');
+            const emptyState = document.getElementById('tradeEmptyState');
+            const tbody = document.getElementById('tradeTableBody');
+            const tfoot = document.getElementById('tradeTableFoot');
+
+            if (!transactions || transactions.length === 0) {
+                wrapper.style.display = 'none';
+                emptyState.style.display = 'block';
+                emptyState.querySelector('p').textContent = '暂无交易记录，请点击"新增做T"添加';
+                return;
+            }
+
+            wrapper.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            // 按轮次分组
+            const rounds = {};
+            transactions.forEach(tx => {
+                const round = tx.round_num;
+                if (!rounds[round]) {
+                    rounds[round] = { buy: null, sell: null };
+                }
+                if (tx.type === 'base' || tx.type === 'buy') {
+                    rounds[round].buy = tx;
+                } else if (tx.type === 'sell') {
+                    rounds[round].sell = tx;
+                }
+            });
+
+            // 渲染表格行
+            let totalBuyShares = 0;
+            let totalBuyAmount = 0;
+            let totalSellShares = 0;
+            let totalSellAmount = 0;
+            let totalProfit = 0;
+
+            const sortedRounds = Object.keys(rounds).sort((a, b) => a - b);
+            
+            tbody.innerHTML = sortedRounds.map(round => {
+                const roundData = rounds[round];
+                const roundLabel = parseInt(round) === 0 ? '底仓' : `第${round}次`;
+                
+                const buyPrice = roundData.buy ? roundData.buy.price : null;
+                const buyShares = roundData.buy ? roundData.buy.shares : null;
+                const buyAmount = buyPrice && buyShares ? buyPrice * buyShares : 0;
+                const sellPrice = roundData.sell ? roundData.sell.price : null;
+                const sellShares = roundData.sell ? roundData.sell.shares : null;
+                const sellAmount = sellPrice && sellShares ? sellPrice * sellShares : 0;
+                
+                // 计算盈利
+                let profit = null;
+                if (roundData.buy && roundData.sell) {
+                    profit = sellAmount - buyAmount;
+                    totalProfit += profit;
+                }
+
+                // 累计
+                if (buyShares) {
+                    totalBuyShares += buyShares;
+                    totalBuyAmount += buyAmount;
+                }
+                if (sellShares) {
+                    totalSellShares += sellShares;
+                    totalSellAmount += sellAmount;
+                }
+
+                const profitClass = profit !== null ? (profit >= 0 ? 'success' : 'danger') : '';
+                const profitText = profit !== null ? (profit >= 0 ? '+' : '') + formatMoney(profit) : '-';
+
+                return `
+                    <tr>
+                        <td>${roundLabel}</td>
+                        <td>${buyPrice !== null ? buyPrice.toFixed(2) : '-'}</td>
+                        <td>${buyShares !== null ? formatShares(buyShares) : '-'}</td>
+                        <td>${buyAmount > 0 ? formatMoney(buyAmount) : '0.00'}</td>
+                        <td>${sellPrice !== null ? sellPrice.toFixed(2) : '-'}</td>
+                        <td>${sellShares !== null ? formatShares(sellShares) : '-'}</td>
+                        <td>${sellAmount > 0 ? formatMoney(sellAmount) : '0.00'}</td>
+                        <td class="${profitClass}">${profitText}</td>
+                        <td>
+                            ${roundData.buy ? `<button class="btn btn-sm btn-danger" onclick="deleteTransaction(${roundData.buy.id})">删除</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 渲染合计行
+            const holdShares = totalBuyShares - totalSellShares;
+            const totalCost = totalBuyAmount - totalSellAmount;
+            const costAfterT = totalCost - totalProfit;
+            const avgCostAfterT = holdShares > 0 ? costAfterT / holdShares : 0;
+            
+            tfoot.innerHTML = `
+                <tr>
+                    <td>合计</td>
+                    <td>-</td>
+                    <td>${formatShares(totalBuyShares)}</td>
+                    <td>${formatMoney(totalBuyAmount)}</td>
+                    <td>-</td>
+                    <td>${formatShares(totalSellShares)}</td>
+                    <td>${formatMoney(totalSellAmount)}</td>
+                    <td class="${totalProfit >= 0 ? 'success' : 'danger'}">${totalProfit >= 0 ? '+' : ''}${formatMoney(totalProfit)}</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>做T后成本</td>
+                    <td colspan="3" class="${totalProfit >= 0 ? 'success' : 'danger'}">¥${formatMoney(costAfterT)}</td>
+                    <td>-</td>
+                    <td colspan="2">持仓 ${formatShares(holdShares)} 股</td>
+                    <td colspan="2">均价 ¥${avgCostAfterT.toFixed(2)}</td>
+                </tr>
+            `;
+        }
+
+        // 渲染盈亏看板
+        function renderProfitBoard(summary) {
+            const totalCost = summary.total_cost || 0;
+            const currentValue = summary.current_value || 0;
+            const totalProfitFinal = summary.total_profit_final || 0;
+            const avgCost = summary.avg_cost || 0;
+            const holdShares = summary.hold_shares || 0;
+            const profitRate = summary.profit_rate || 0;
+            
+            const costAfterT = summary.cost_after_t || 0;
+            const profitAfterT = summary.profit_after_t || 0;
+            const profitRateAfterT = summary.profit_rate_after_t || 0;
+
+            document.getElementById('totalCost').textContent = '¥' + formatMoney(totalCost);
+            document.getElementById('currentValue').textContent = '¥' + formatMoney(currentValue);
+            document.getElementById('totalProfit').textContent = (totalProfitFinal >= 0 ? '+' : '') + '¥' + formatMoney(totalProfitFinal);
+            document.getElementById('avgCost').textContent = '¥' + avgCost.toFixed(2);
+            document.getElementById('holdShares').textContent = formatShares(holdShares);
+            document.getElementById('profitRate').textContent = (profitRate >= 0 ? '+' : '') + profitRate.toFixed(2) + '%';
+            
+            document.getElementById('costAfterT').textContent = '¥' + formatMoney(costAfterT);
+            document.getElementById('profitAfterT').textContent = (profitAfterT >= 0 ? '+' : '') + '¥' + formatMoney(profitAfterT);
+            document.getElementById('profitRateAfterT').textContent = (profitRateAfterT >= 0 ? '+' : '') + profitRateAfterT.toFixed(2) + '%';
+
+            // 更新盈亏颜色
+            const profitBoardItem = document.getElementById('profitBoardItem');
+            const profitRateBoardItem = document.getElementById('profitRateBoardItem');
+            const costAfterTBoardItem = document.getElementById('costAfterTBoardItem');
+            const profitAfterTBoardItem = document.getElementById('profitAfterTBoardItem');
+            const profitRateAfterTBoardItem = document.getElementById('profitRateAfterTBoardItem');
+
+            profitBoardItem.className = 'board-item ' + (totalProfitFinal >= 0 ? 'success' : 'danger');
+            profitRateBoardItem.className = 'board-item ' + (profitRate >= 0 ? 'success' : 'danger');
+            costAfterTBoardItem.className = 'board-item ' + (profitAfterT >= 0 ? 'success' : 'danger');
+            profitAfterTBoardItem.className = 'board-item ' + (profitAfterT >= 0 ? 'success' : 'danger');
+            profitRateAfterTBoardItem.className = 'board-item ' + (profitRateAfterT >= 0 ? 'success' : 'danger');
+        }
+
+        // 刷新行情
+        async function refreshMarket() {
+            if (stocks.length === 0) {
+                setStatus('没有可刷新的股票');
+                return;
+            }
+
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> 刷新中...';
+            setStatus('正在刷新行情...');
+
+            try {
+                const codes = stocks.map(s => s.code);
+                const response = await fetch('/api/market/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codes: codes })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    await loadStocks();
+                    if (currentStockId) {
+                        await loadStockDetail(currentStockId);
+                    }
+                    setStatus('行情刷新完成');
+                }
+            } catch (error) {
+                console.error('刷新行情失败:', error);
+                setStatus('刷新失败');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '刷新行情';
+        }
+
+        // 导出数据
+        async function exportData() {
+            setStatus('正在导出数据...');
+            try {
+                const response = await fetch('/api/export');
+                const data = await response.json();
+                
+                const csvContent = generateCSV(data);
+                downloadCSV(csvContent, 'stock_data.csv');
+                
+                setStatus('导出完成');
+            } catch (error) {
+                console.error('导出失败:', error);
+                setStatus('导出失败');
+            }
+        }
+
+        // 生成CSV
+        function generateCSV(data) {
+            let csv = '\uFEFF'; // BOM for UTF-8
+            csv += '股票代码,股票名称,市场,交易类型,价格,股数,轮次\n';
+            
+            for (const stock of data.stocks) {
+                const transactions = data.transactions[stock.id] || [];
+                for (const tx of transactions) {
+                    csv += `${stock.code},${stock.name},${stock.market},${tx.type},${tx.price},${tx.shares},${tx.round_num}\n`;
+                }
+            }
+            
+            return csv;
+        }
+
+        // 下载CSV
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+        }
+
+        // 打开模态框
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // 查询股票信息
+        async function queryStockInfo() {
+            const code = document.getElementById('stockCode').value.trim();
+            const hint = document.getElementById('stockQueryHint');
+            const nameInput = document.getElementById('stockName');
+            const marketSelect = document.getElementById('stockMarket');
+            const confirmBtn = document.getElementById('confirmAddStockBtn');
+            const queryBtn = document.getElementById('queryStockBtn');
+
+            if (code.length !== 6 || !/^\d+$/.test(code)) {
+                hint.textContent = '请输入6位数字股票代码';
+                hint.classList.add('error');
+                return;
+            }
+
+            queryBtn.disabled = true;
+            queryBtn.innerHTML = '<span class="loading"></span>';
+            hint.textContent = '正在查询...';
+            hint.classList.remove('error');
+
+            try {
+                const response = await fetch(`/api/market/query?code=${code}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    hint.textContent = '未找到股票信息，请手动输入';
+                    hint.classList.add('error');
+                    nameInput.value = '';
+                    nameInput.disabled = false;
+                    marketSelect.disabled = false;
+                    confirmBtn.disabled = !nameInput.value.trim();
+                } else {
+                    nameInput.value = data.name;
+                    nameInput.disabled = false;
+                    marketSelect.value = data.market === 'SZ' || data.market === 'SH' ? data.market : 'SZ';
+                    marketSelect.disabled = false;
+                    hint.textContent = '查询成功，请确认信息';
+                    hint.classList.remove('error');
+                    confirmBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('查询失败:', error);
+                hint.textContent = '查询失败，请手动输入';
+                hint.classList.add('error');
+                nameInput.disabled = false;
+                marketSelect.disabled = false;
+            }
+
+            queryBtn.disabled = false;
+            queryBtn.innerHTML = '查询';
+        }
+
+        // 添加股票代码变化监听
+        document.getElementById('stockCode').addEventListener('input', function(e) {
+            const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+            e.target.value = value;
+            
+            const hint = document.getElementById('stockQueryHint');
+            const nameInput = document.getElementById('stockName');
+            const marketSelect = document.getElementById('stockMarket');
+            const confirmBtn = document.getElementById('confirmAddStockBtn');
+
+            if (value.length === 6) {
+                hint.textContent = '点击"查询"按钮获取股票信息';
+                hint.classList.remove('error');
+                confirmBtn.disabled = !nameInput.value.trim();
+                
+                // 自动查询
+                queryStockInfo();
+            } else {
+                hint.textContent = '输入股票代码后自动查询股票信息';
+                hint.classList.remove('error');
+                nameInput.value = '';
+                nameInput.disabled = true;
+                marketSelect.disabled = true;
+                confirmBtn.disabled = true;
+            }
+        });
+
+        // 股票名称变化监听
+        document.getElementById('stockName').addEventListener('input', function(e) {
+            const confirmBtn = document.getElementById('confirmAddStockBtn');
+            confirmBtn.disabled = !e.target.value.trim();
+        });
+
+        // 确认添加股票
+        async function confirmAddStock() {
+            const code = document.getElementById('stockCode').value.trim();
+            const name = document.getElementById('stockName').value.trim();
+            const market = document.getElementById('stockMarket').value;
+
+            if (!code || !name) {
+                setStatus('请填写完整的股票信息');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/stocks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, name: name, market: market })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    closeModal('addStockModal');
+                    resetAddStockForm();
+                    await loadStocks();
+                    setStatus('股票添加成功');
+                } else {
+                    setStatus(result.error || '添加失败');
+                }
+            } catch (error) {
+                console.error('添加股票失败:', error);
+                setStatus('添加失败');
+            }
+        }
+
+        // 重置添加股票表单
+        function resetAddStockForm() {
+            document.getElementById('stockCode').value = '';
+            document.getElementById('stockName').value = '';
+            document.getElementById('stockMarket').value = 'SZ';
+            document.getElementById('stockName').disabled = true;
+            document.getElementById('stockMarket').disabled = true;
+            document.getElementById('confirmAddStockBtn').disabled = true;
+            document.getElementById('stockQueryHint').textContent = '输入股票代码后自动查询股票信息';
+            document.getElementById('stockQueryHint').classList.remove('error');
+        }
+
+        // 确认添加交易
+        async function confirmAddTrade() {
+            const type = document.getElementById('tradeType').value;
+            const price = parseFloat(document.getElementById('tradePrice').value);
+            const shares = parseInt(document.getElementById('tradeShares').value);
+            
+            let round = parseInt(document.getElementById('tradeRound').value);
+            if (isNaN(round)) {
+                if (type === 'base') {
+                    round = 0;
+                } else if (currentSummary && currentSummary.transactions && currentSummary.transactions.length > 0) {
+                    round = Math.max(...currentSummary.transactions.map(t => t.round_num), 0) + 1;
+                } else {
+                    round = 1;
+                }
+            }
+
+            if (!price || price <= 0) {
+                setStatus('请输入有效的价格');
+                return;
+            }
+
+            if (!shares || shares <= 0) {
+                setStatus('请输入有效的股数');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/stocks/${currentStockId}/transactions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: type,
+                        price: price,
+                        shares: shares,
+                        round_num: round
+                    })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    closeModal('addTradeModal');
+                    resetAddTradeForm();
+                    await loadStockDetail(currentStockId);
+                    setStatus('交易记录添加成功');
+                } else {
+                    setStatus(result.error || '添加失败');
+                }
+            } catch (error) {
+                console.error('添加交易失败:', error);
+                setStatus('添加失败');
+            }
+        }
+
+        // 重置添加交易表单
+        function resetAddTradeForm() {
+            document.getElementById('tradeType').value = 'buy';
+            document.getElementById('tradePrice').value = '';
+            document.getElementById('tradeShares').value = '';
+            document.getElementById('tradeRound').value = '';
+        }
+
+        // 显示股票右键菜单
+        function showStockContextMenu(event, stockId, stockName) {
+            event.preventDefault();
+            
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            menu.style.cssText = `
+                position: fixed;
+                left: ${event.clientX}px;
+                top: ${event.clientY}px;
+                background: white;
+                border: 1px solid #DEE2E6;
+                border-radius: 4px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                z-index: 2000;
+                min-width: 150px;
+            `;
+            
+            menu.innerHTML = `
+                <div onclick="deleteStock(${stockId}, '${stockName}')" 
+                     style="padding: 10px 16px; cursor: pointer; hover: background: #F8F9FA;">
+                    删除 ${stockName}
+                </div>
+                <div onclick="refreshSingleStock(${stockId}, '${stockName}')" 
+                     style="padding: 10px 16px; cursor: pointer;">
+                    刷新行情
+                </div>
+            `;
+            
+            document.body.appendChild(menu);
+            
+            const closeMenu = (e) => {
+                if (!menu.contains(e.target)) {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                }
+            };
+            
+            setTimeout(() => {
+                document.addEventListener('click', closeMenu);
+            }, 0);
+        }
+
+        // 删除股票
+        function deleteStock(stockId, stockName) {
+            deleteCallback = async () => {
+                try {
+                    const response = await fetch(`/api/stocks/${stockId}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        if (currentStockId === stockId) {
+                            currentStockId = null;
+                            document.getElementById('currentStockName').textContent = '请选择股票';
+                            document.getElementById('boardStockName').textContent = '请选择股票';
+                            document.getElementById('addTradeBtn').disabled = true;
+                            document.getElementById('tradeTableWrapper').style.display = 'none';
+                            document.getElementById('tradeEmptyState').style.display = 'block';
+                            renderProfitBoard({
+                                total_cost: 0,
+                                current_value: 0,
+                                total_profit_final: 0,
+                                avg_cost: 0,
+                                hold_shares: 0,
+                                profit_rate: 0
+                            });
+                        }
+                        await loadStocks();
+                        setStatus('股票删除成功');
+                    }
+                } catch (error) {
+                    console.error('删除失败:', error);
+                    setStatus('删除失败');
+                }
+            };
+
+            document.getElementById('deleteMessage').textContent = `确定要删除股票 ${stockName} 及其所有交易记录吗？`;
+            openModal('confirmDeleteModal');
+        }
+
+        // 刷新单只股票
+        async function refreshSingleStock(stockId, stockName) {
+            setStatus(`正在刷新 ${stockName} 行情...`);
+            try {
+                const codes = [stocks.find(s => s.id === stockId)?.code];
+                const response = await fetch('/api/market/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codes: codes })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    await loadStocks();
+                    if (currentStockId === stockId) {
+                        await loadStockDetail(stockId);
+                    }
+                    setStatus(`${stockName} 行情刷新完成`);
+                }
+            } catch (error) {
+                console.error('刷新失败:', error);
+                setStatus('刷新失败');
+            }
+        }
+
+        // 删除交易记录
+        function deleteTransaction(txId) {
+            deleteCallback = async () => {
+                try {
+                    const response = await fetch(`/api/transactions/${txId}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.json();
+
+                    if (result.success && currentStockId) {
+                        await loadStockDetail(currentStockId);
+                        setStatus('交易记录删除成功');
+                    }
+                } catch (error) {
+                    console.error('删除失败:', error);
+                    setStatus('删除失败');
+                }
+            };
+
+            document.getElementById('deleteMessage').textContent = '确定要删除这条交易记录吗？';
+            openModal('confirmDeleteModal');
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            const isLoggedIn = await checkLoginStatus();
+            if (!isLoggedIn) return;
+            
+            // 加载股票列表
+            loadStocks();
+
+            // 添加股票按钮
+            document.getElementById('addStockBtn').addEventListener('click', function() {
+                resetAddStockForm();
+                openModal('addStockModal');
+            });
+
+            // 刷新行情按钮
+            document.getElementById('refreshBtn').addEventListener('click', refreshMarket);
+
+            // 导出数据按钮
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+
+            // 新增做T按钮
+            document.getElementById('addTradeBtn').addEventListener('click', function() {
+                if (!currentStockId) {
+                    setStatus('请先选择一只股票');
+                    return;
+                }
+                
+                openModal('addTradeModal');
+                
+                const tradeType = document.getElementById('tradeType');
+                if (tradeType && tradeType.value === 'base') {
+                    document.getElementById('tradeRound').value = '0';
+                } else if (currentSummary && currentSummary.transactions && currentSummary.transactions.length > 0) {
+                    const maxRound = Math.max(...currentSummary.transactions.map(t => t.round_num), 0);
+                    document.getElementById('tradeRound').value = maxRound + 1;
+                } else {
+                    document.getElementById('tradeRound').value = '1';
+                }
+            });
+
+            // 交易类型变化监听
+            document.getElementById('tradeType').addEventListener('change', function(e) {
+                const roundInput = document.getElementById('tradeRound');
+                if (!roundInput) return;
+                
+                if (e.target.value === 'base') {
+                    roundInput.value = '0';
+                } else if (currentSummary && currentSummary.transactions && currentSummary.transactions.length > 0) {
+                    const maxRound = Math.max(...currentSummary.transactions.map(t => t.round_num), 0);
+                    roundInput.value = maxRound + 1;
+                } else {
+                    roundInput.value = '1';
+                }
+            });
+
+            // 确认删除按钮
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                if (deleteCallback) {
+                    deleteCallback();
+                    deleteCallback = null;
+                }
+                closeModal('confirmDeleteModal');
+            });
+
+            // 点击模态框背景关闭
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+
+            // ESC键关闭模态框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal').forEach(modal => {
+                        modal.style.display = 'none';
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
